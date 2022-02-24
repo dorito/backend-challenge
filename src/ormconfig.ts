@@ -14,7 +14,7 @@ const config: ConnectionOptions = {
   synchronize: false,
 
   migrationsRun: true,
-  logging: true,
+  logging: false,
   logger: 'file',
 
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
