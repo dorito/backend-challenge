@@ -62,6 +62,7 @@ export class LevelController {
   })
   @ApiBody({
     type: CreateLevelDto,
+    description: 'Name of new level',
   })
   async createNewLevel(@Body() createLevelDto: CreateLevelDto): Promise<Level> {
     return this.levelService.createLevel(createLevelDto);
