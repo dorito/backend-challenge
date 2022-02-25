@@ -7,11 +7,10 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  ParseIntPipe,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiQuery } from '@nestjs/swagger';
+import { ApiOkResponse, ApiQuery } from '@nestjs/swagger';
 
 @Controller('level')
 export class LevelController {
@@ -24,6 +23,12 @@ export class LevelController {
     type: Number,
     description: 'Level Id. Optional',
     required: false,
+  })
+  @ApiOkResponse({
+    type: Level,
+    isArray: true,
+    description:
+      'Return Level[] when ?id param is not setted.<br>Return Level when ?id param is setted.',
   })
   async findOneOrAll(
     @Query('id', new FindLevelByIdDto()) id: any,
