@@ -11,6 +11,10 @@ const config: ConnectionOptions = {
   database: process.env.DB_DATABASE,
   entities: [__dirname + '/../entities/*{.ts,.js}'],
 
+  extra: {
+    ssl: true,
+  },
+
   synchronize: false,
 
   migrationsRun: true,
