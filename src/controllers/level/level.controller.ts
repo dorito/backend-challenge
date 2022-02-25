@@ -26,17 +26,17 @@ export class LevelController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
-  @ApiQuery({
-    name: 'id',
-    type: Number,
-    description: 'Level Id. Optional',
-    required: false,
-  })
   @ApiOkResponse({
     type: Level,
     isArray: true,
     description:
       'Return Level[] when ?id param is not setted.<br>Return Level when ?id param is setted.',
+  })
+  @ApiQuery({
+    name: 'id',
+    type: Number,
+    description: 'Level Id. Optional',
+    required: false,
   })
   async findOneOrAll(
     @Query('id', new FindLevelByIdDto()) id: any,
