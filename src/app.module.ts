@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LevelModule } from '@/modules/level.module';
+import { DeveloperModule } from './modules/developer.module';
 
 console.log(__dirname + '/entities/*{.ts,.js}');
 @Module({
@@ -18,6 +19,7 @@ console.log(__dirname + '/entities/*{.ts,.js}');
       autoLoadEntities: true,
     }),
     LevelModule,
+    DeveloperModule,
   ],
   controllers: [],
   providers: [],
