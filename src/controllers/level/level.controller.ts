@@ -6,9 +6,8 @@ import {
   Body,
   ClassSerializerInterceptor,
   Controller,
+  Delete,
   Get,
-  HttpException,
-  HttpStatus,
   Post,
   Query,
   UseInterceptors,
@@ -16,6 +15,7 @@ import {
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
 } from '@nestjs/swagger';
@@ -42,16 +42,9 @@ export class LevelController {
     @Query('id', new FindLevelByIdDto()) id: any,
   ): Promise<Level[] | Level> {
     if (!id) {
-      return await this.levelService.findAll();
+      return this.levelService.findAll();
     }
-    const level: Level = await this.levelService.findById(id);
-    if (!level) {
-      throw new HttpException(
-        `Level with id ${id} not found`,
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return level;
+    return this.levelService.findById(id);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -66,5 +59,21 @@ export class LevelController {
   })
   async createNewLevel(@Body() createLevelDto: CreateLevelDto): Promise<Level> {
     return this.levelService.createLevel(createLevelDto);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Delete()
+  @ApiNoContentResponse({
+    type: Level,
+    description: 'No return when successful.',
+  })
+  @ApiQuery({
+    name: 'id',
+    type: Number,
+    description: 'Level Id',
+    required: true,
+  })
+  async removeLevel(@Query('id', new FindLevelByIdDto()) id: any) {
+    this.levelService.removeLevel(id);
   }
 }

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LevelRepository } from '@/repositories/level/level.repository';
 import { Level } from '@/entities/level';
@@ -16,12 +20,18 @@ export class LevelService {
   }
 
   async findById(id: number): Promise<Level> {
-    return this.levelRepository.findById(id);
+    const level: Level = await this.levelRepository.findById(id);
+    if (!level) {
+      throw new NotFoundException(`Level with id ${id} not found`);
+    }
+    return level;
   }
 
   async createLevel(createLevelDto: CreateLevelDto): Promise<Level> {
-    const levelName = createLevelDto.name;
-    const existingLevel = await this.levelRepository.findByName(levelName);
+    const levelName: string = createLevelDto.name;
+    const existingLevel: Level = await this.levelRepository.findByName(
+      levelName,
+    );
     if (existingLevel) {
       throw new BadRequestException(
         `Level with name=${levelName} already exists (id=${existingLevel.id})`,
@@ -30,5 +40,10 @@ export class LevelService {
     const level = new Level();
     level.name = levelName;
     return this.levelRepository.save(level);
+  }
+
+  async removeLevel(id: number) {
+    const level: Level = await this.findById(id);
+    this.levelRepository.softDelete(level);
   }
 }
