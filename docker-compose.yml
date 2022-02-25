@@ -12,7 +12,7 @@ services:
       volumes:
         - /var/lib/postgresql/data
       ports:
-        - 5432:5432
+        - ${DB_PORT}:5432
       networks:
         - default
     prod:
@@ -20,21 +20,14 @@ services:
         build:
             context: .
             dockerfile: ./Dockerfile
-        environment:
-          SERVER_PORT: 3000
-          MODE: PROD
-          DB_HOST: postgres
-          DB_PORT: 5432
-          DB_USERNAME: postgres
-          DB_PASSWORD: postgres
-          DB_DATABASE: postgres
-          DB_SYNCHRONIZE: false
-        command: yarn run start:prod && yarn run typeorm:run
+        command: bash -c "
+            yarn run typeorm:run && yarn run start:prod
+          "
         depends_on:
           postgres:
             condition: service_started
         ports:
-            - 3000:3000
+            - ${SERVER_PORT}:3000
         networks:
             - default
         volumes:
