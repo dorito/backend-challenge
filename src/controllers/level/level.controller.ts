@@ -13,6 +13,8 @@ import {
   Post,
   Query,
   UseInterceptors,
+  NotImplementedException,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -25,11 +27,15 @@ import {
   getSchemaPath,
 } from '@nestjs/swagger';
 import { PaginatedResult } from '@/validators/common/paginated-result';
+import { DeveloperService } from '@/services/developer/developer.service';
 
 @ApiTags('Level')
 @Controller('level')
 export class LevelController {
-  constructor(private levelService: LevelService) {}
+  constructor(
+    private levelService: LevelService,
+    private developerService: DeveloperService,
+  ) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
@@ -75,7 +81,11 @@ export class LevelController {
     @Query('take', new NumericParam()) take?: any,
     @Query('skip', new NumericParam()) skip?: any,
   ): Promise<PaginatedResult<Level> | Level> {
-    return this.levelService.findAll(take, skip, id);
+    const levels = await this.levelService.findAll(take, skip, id);
+    if (levels.count == 0) {
+      throw new NotFoundException('No levels found');
+    }
+    return levels;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
@@ -105,6 +115,18 @@ export class LevelController {
     required: true,
   })
   async removeLevel(@Query('id', new NumericParam()) id: any) {
+    const developers = await this.developerService.findAll(
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      id,
+    );
+    if (developers.count > 0) {
+      throw new NotImplementedException(
+        'Level cannot be removed because there are developers related to it',
+      );
+    }
     await this.levelService.removeLevel(id);
   }
 

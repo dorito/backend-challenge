@@ -5,6 +5,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { LevelController } from './level.controller';
 import { Level } from '@/entities/level';
 import { EditLevelDto } from '@/validators/level/edit-level-dto';
+import { DeveloperService } from '@/services/developer/developer.service';
 
 const oneLevel: Level = { id: 1, name: 'TestLevel 1' };
 const twoLevel: Level = { id: 2, name: 'TestLevel 2' };
@@ -13,7 +14,7 @@ const manyLevels = [oneLevel, twoLevel, threeLevel];
 
 describe('LevelController', () => {
   let controller: LevelController;
-  const serviceMock = {
+  const levelServiceMock = {
     findById: jest.fn((id) => {
       const levelObj = manyLevels.filter((obj) => obj.id == id);
       if (levelObj[0]) {
@@ -21,20 +22,28 @@ describe('LevelController', () => {
       }
       throw new NotFoundException();
     }),
-    findAll: jest.fn((id) => {
+    findAll: jest.fn((take, skip, id) => {
       if (!id) {
         return manyLevels;
       } else {
-        return serviceMock.findById(id);
+        return levelServiceMock.findById(id);
       }
     }),
     createLevel: jest.fn((createLevelDto: CreateLevelDto) => {
       return Promise.resolve({ id: 4, name: createLevelDto.name });
     }),
     editLevel: jest.fn((editLevelDto: EditLevelDto) => {
-      serviceMock.findById(editLevelDto.id);
+      levelServiceMock.findById(editLevelDto.id);
       return Promise.resolve({ id: editLevelDto.id, name: editLevelDto.name });
     }),
+  };
+  const developerServiceMock = {
+    findAll: jest.fn(() =>
+      Promise.resolve({
+        count: 0,
+        data: [],
+      }),
+    ),
   };
 
   beforeEach(async () => {
@@ -43,7 +52,11 @@ describe('LevelController', () => {
         LevelController,
         {
           provide: LevelService,
-          useValue: serviceMock,
+          useValue: levelServiceMock,
+        },
+        {
+          provide: DeveloperService,
+          useValue: developerServiceMock,
         },
       ],
     }).compile();

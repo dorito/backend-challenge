@@ -45,6 +45,7 @@ export class DeveloperService {
       where,
       take,
       skip,
+      relations: ['level'],
     });
     return {
       data: result,

@@ -13,12 +13,13 @@ const manyLevels = [oneLevel, twoLevel, threeLevel];
 describe('LevelService', () => {
   let service: LevelService;
   const repoMock = {
-    findAndCount: jest.fn((take?, skip?) =>
-      Promise.resolve([
-        manyLevels.map((o) => plainToClass(Level, o)),
-        manyLevels.length,
-      ]),
-    ),
+    findAndCount: jest.fn(async (take?, skip?, id?) => {
+      let resLevels = manyLevels.map((o) => plainToClass(Level, o));
+      if (id) {
+        resLevels = [await repoMock.findById(id)];
+      }
+      return Promise.resolve([resLevels, manyLevels.length]);
+    }),
     findById: jest.fn((id) => {
       const levelObj = manyLevels.filter((obj) => obj.id == id);
       if (levelObj) {
