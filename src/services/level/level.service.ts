@@ -51,10 +51,11 @@ export class LevelService {
     return await this.levelRepository.save(level);
   }
 
-  async removeLevel(id: number) {
+  async removeLevel(id: number): Promise<boolean> {
     try {
       const level: Level = await this.findById(id);
       await this.levelRepository.softDelete(level);
+      return true;
     } catch (e) {
       throw e;
     }
