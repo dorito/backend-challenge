@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LevelModule } from '@/modules/level.module';
 import { DeveloperModule } from './modules/developer.module';
 
+const isDevMode = process.env.MODE == 'DEV' ? true : false;
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -17,7 +18,7 @@ import { DeveloperModule } from './modules/developer.module';
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
       autoLoadEntities: true,
       migrationsRun: true,
-      ssl: true,
+      ssl: !isDevMode,
       extra: {
         ssl: {
           rejectUnauthorized: false,
