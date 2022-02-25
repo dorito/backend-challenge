@@ -134,7 +134,6 @@ describe('DeveloperController', () => {
         undefined, //name
         undefined, //level
       );
-      console.log(developer.data);
       expect(developer.data[0].id).toEqual(knownId);
     });
 
