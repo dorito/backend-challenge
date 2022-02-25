@@ -1,10 +1,10 @@
-import { CreateLevelDto } from '@/dtos/level/create-level.dto';
+import { CreateLevelDto } from '@/validators/level/create-level.dto';
 import { LevelService } from '@/services/level/level.service';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LevelController } from './level.controller';
 import { Level } from '@/entities/level';
-import { EditLevelDto } from '@/dtos/level/edit-level-dto';
+import { EditLevelDto } from '@/validators/level/edit-level-dto';
 
 const oneLevel: Level = { id: 1, name: 'TestLevel 1' };
 const twoLevel: Level = { id: 2, name: 'TestLevel 2' };

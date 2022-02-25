@@ -6,8 +6,9 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { LevelRepository } from '@/repositories/level.repository';
 import { Level } from '@/entities/level';
-import { CreateLevelDto } from '@/dtos/level/create-level.dto';
-import { EditLevelDto } from '@/dtos/level/edit-level-dto';
+import { CreateLevelDto } from '@/validators/level/create-level.dto';
+import { EditLevelDto } from '@/validators/level/edit-level-dto';
+import { PaginatedResult } from '@/validators/common/paginated-result';
 
 @Injectable()
 export class LevelService {
@@ -31,8 +32,26 @@ export class LevelService {
     }
   }
 
-  async findAll(): Promise<Level[]> {
-    return this.levelRepository.findAll();
+  async findAll(
+    take = 30,
+    skip = 0,
+    id?: number,
+  ): Promise<PaginatedResult<Level>> {
+    const where = [];
+    if (id) {
+      where.push({
+        id,
+      });
+    }
+    const [result, total] = await this.levelRepository.findAndCount({
+      where,
+      take,
+      skip,
+    });
+    return {
+      data: result,
+      count: total,
+    };
   }
 
   async findById(id: number): Promise<Level> {

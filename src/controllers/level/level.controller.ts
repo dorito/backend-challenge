@@ -1,6 +1,6 @@
-import { CreateLevelDto } from '@/dtos/level/create-level.dto';
-import { EditLevelDto } from '@/dtos/level/edit-level-dto';
-import { NumericParam } from '@/dtos/common/numeric-param';
+import { CreateLevelDto } from '@/validators/level/create-level.dto';
+import { EditLevelDto } from '@/validators/level/edit-level-dto';
+import { NumericParam } from '@/validators/common/numeric-param';
 import { Level } from '@/entities/level';
 import { LevelService } from '@/services/level/level.service';
 import {
@@ -17,11 +17,14 @@ import {
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
+import { PaginatedResult } from '@/validators/common/paginated-result';
 
 @ApiTags('Level')
 @Controller('level')
@@ -30,11 +33,24 @@ export class LevelController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
+  @ApiExtraModels(PaginatedResult, Level)
   @ApiOkResponse({
-    type: Level,
-    isArray: true,
-    description:
-      'Return Level[] when ?id param is not setted.<br>Return Level when ?id param is setted.',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(PaginatedResult) },
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Level) },
+            },
+            count: {
+              type: 'number',
+            },
+          },
+        },
+      ],
+    },
   })
   @ApiQuery({
     name: 'id',
@@ -42,13 +58,24 @@ export class LevelController {
     description: 'Level Id. Optional',
     required: false,
   })
+  @ApiQuery({
+    name: 'take',
+    type: Number,
+    description: 'How many items to fetch. Optional',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'skip',
+    type: Number,
+    description: 'How many items to skip. Optional',
+    required: false,
+  })
   async findOneOrAll(
     @Query('id', new NumericParam()) id: any,
-  ): Promise<Level[] | Level> {
-    if (!id) {
-      return this.levelService.findAll();
-    }
-    return this.levelService.findById(id);
+    @Query('take', new NumericParam()) take?: any,
+    @Query('skip', new NumericParam()) skip?: any,
+  ): Promise<PaginatedResult<Level> | Level> {
+    return this.levelService.findAll(take, skip, id);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

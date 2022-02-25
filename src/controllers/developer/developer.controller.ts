@@ -1,6 +1,6 @@
-import { NumericParam } from '@/dtos/common/numeric-param';
-import { CreateDeveloperDto } from '@/dtos/developer/create-developer.dto';
-import { EditDeveloperDto } from '@/dtos/developer/edit-developer.dto';
+import { NumericParam } from '@/validators/common/numeric-param';
+import { CreateDeveloperDto } from '@/validators/developer/create-developer.dto';
+import { EditDeveloperDto } from '@/validators/developer/edit-developer.dto';
 import { Developer } from '@/entities/developer';
 import { DeveloperService } from '@/services/developer/developer.service';
 import { LevelService } from '@/services/level/level.service';
@@ -14,15 +14,19 @@ import {
   Put,
   Query,
   UseInterceptors,
+  NotFoundException,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiExtraModels,
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
   ApiTags,
+  getSchemaPath,
 } from '@nestjs/swagger';
+import { PaginatedResult } from '@/validators/common/paginated-result';
 
 @ApiTags('Developer')
 @Controller('developer')
@@ -33,11 +37,24 @@ export class DeveloperController {
   ) {}
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
+  @ApiExtraModels(PaginatedResult, Developer)
   @ApiOkResponse({
-    type: Developer,
-    isArray: true,
-    description:
-      'Return Developer[] when ?id param is not setted.<br>Return Developer when ?id param is setted.',
+    schema: {
+      allOf: [
+        { $ref: getSchemaPath(PaginatedResult) },
+        {
+          properties: {
+            data: {
+              type: 'array',
+              items: { $ref: getSchemaPath(Developer) },
+            },
+            count: {
+              type: 'number',
+            },
+          },
+        },
+      ],
+    },
   })
   @ApiQuery({
     name: 'id',
@@ -45,13 +62,48 @@ export class DeveloperController {
     description: 'Developer Id. Optional',
     required: false,
   })
+  @ApiQuery({
+    name: 'name',
+    type: String,
+    description: 'Developer name. Optional',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'level',
+    type: Number,
+    description: 'Developer level ID. Optional',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'take',
+    type: Number,
+    description: 'How many items to fetch. Optional',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'skip',
+    type: Number,
+    description: 'How many items to skip. Optional',
+    required: false,
+  })
   async findOneOrAll(
     @Query('id', new NumericParam()) id: any,
-  ): Promise<Developer[] | Developer> {
-    if (!id) {
-      return this.developerService.findAll();
+    @Query('name') name: string,
+    @Query('level', new NumericParam()) level: any,
+    @Query('take', new NumericParam()) take?: any,
+    @Query('skip', new NumericParam()) skip?: any,
+  ): Promise<PaginatedResult<Developer> | Developer> {
+    const developers = await this.developerService.findAll(
+      take,
+      skip,
+      id,
+      name,
+      level,
+    );
+    if (developers.count == 0) {
+      throw new NotFoundException('No developers found');
     }
-    return this.developerService.findById(id);
+    return developers;
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

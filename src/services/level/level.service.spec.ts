@@ -1,4 +1,3 @@
-import { CreateLevelDto } from '@/dtos/level/create-level.dto';
 import { Level } from '@/entities/level';
 import { LevelRepository } from '@/repositories/level.repository';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
@@ -14,11 +13,10 @@ const manyLevels = [oneLevel, twoLevel, threeLevel];
 describe('LevelService', () => {
   let service: LevelService;
   const repoMock = {
-    findAll: jest.fn(() =>
+    findAndCount: jest.fn((take?, skip?) =>
       Promise.resolve([
-        plainToClass(Level, oneLevel),
-        plainToClass(Level, twoLevel),
-        plainToClass(Level, threeLevel),
+        manyLevels.map((o) => plainToClass(Level, o)),
+        manyLevels.length,
       ]),
     ),
     findById: jest.fn((id) => {
@@ -53,8 +51,8 @@ describe('LevelService', () => {
 
   describe('findAll', () => {
     it('should return all levels', async () => {
-      const levels = await service.findAll();
-      expect(levels).toEqual(manyLevels);
+      const result = await service.findAll();
+      expect(result.data).toEqual(manyLevels);
     });
   });
 

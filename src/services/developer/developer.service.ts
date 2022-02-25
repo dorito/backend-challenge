@@ -2,8 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Developer } from '@/entities/developer';
 import { DeveloperRepository } from '@/repositories/developer.repository';
-import { CreateLevelDto } from '@/dtos/level/create-level.dto';
-import { EditDeveloperDto } from '@/dtos/developer/edit-developer.dto';
+import { CreateLevelDto } from '@/validators/level/create-level.dto';
+import { EditDeveloperDto } from '@/validators/developer/edit-developer.dto';
+import { PaginatedResult } from '@/validators/common/paginated-result';
+import { Like } from 'typeorm';
 
 @Injectable()
 export class DeveloperService {
@@ -16,8 +18,38 @@ export class DeveloperService {
     return await this.developerRepository.findByName(name);
   }
 
-  async findAll(): Promise<Developer[]> {
-    return this.developerRepository.findAll();
+  async findAll(
+    take = 30,
+    skip = 0,
+    id?: number,
+    name?: string,
+    level?: number,
+  ): Promise<PaginatedResult<Developer>> {
+    const where = [];
+    if (id) {
+      where.push({
+        id,
+      });
+    }
+    if (name) {
+      where.push({
+        name: Like(`%${name}%`),
+      });
+    }
+    if (level) {
+      where.push({
+        level,
+      });
+    }
+    const [result, total] = await this.developerRepository.findAndCount({
+      where,
+      take,
+      skip,
+    });
+    return {
+      data: result,
+      count: total,
+    };
   }
 
   async findById(id: number): Promise<Developer> {
