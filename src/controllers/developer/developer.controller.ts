@@ -1,3 +1,4 @@
+import { NumericParam } from '@/dtos/common/numeric-param';
 import { Developer } from '@/entities/developer';
 import { DeveloperService } from '@/services/developer/developer.service';
 import {
@@ -22,30 +23,30 @@ import {
 @Controller('developer')
 export class DeveloperController {
   constructor(private developerService: DeveloperService) {}
-  /*
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({
     type: Developer,
     isArray: true,
     description:
-      'Return Level[] when ?id param is not setted.<br>Return Level when ?id param is setted.',
+      'Return Developer[] when ?id param is not setted.<br>Return Developer when ?id param is setted.',
   })
   @ApiQuery({
     name: 'id',
     type: Number,
-    description: 'Level Id. Optional',
+    description: 'Developer Id. Optional',
     required: false,
   })
   async findOneOrAll(
-    @Query('id', new FindLevelByIdDto()) id: any,
-  ): Promise<Level[] | Level> {
+    @Query('id', new NumericParam()) id: any,
+  ): Promise<Developer[] | Developer> {
     if (!id) {
-      return this.levelService.findAll();
+      return this.developerService.findAll();
     }
-    return this.levelService.findById(id);
+    return this.developerService.findById(id);
   }
 
+  /*
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
   @ApiCreatedResponse({

@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { Exclude, Expose } from 'class-transformer';
 import { Level } from './level';
+import { ApiProperty } from '@nestjs/swagger';
 
 export enum SexoEnum {
   MASCULINO = 'M',
@@ -17,20 +18,27 @@ export enum SexoEnum {
 
 @Entity({ name: 'developer' })
 export class Developer {
+  @ApiProperty()
   @Expose()
   @PrimaryGeneratedColumn()
   id!: number;
 
+  @ApiProperty()
   @Expose()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   @OneToOne((type) => Level)
   @JoinColumn({ name: 'developerLevel' })
   level: Level;
 
+  @ApiProperty()
   @Expose()
   @Column()
   name!: string;
 
+  @ApiProperty({
+    enum: SexoEnum,
+    description: 'M, F or I',
+  })
   @Expose()
   @Column({
     type: 'enum',
@@ -38,14 +46,17 @@ export class Developer {
   })
   gender!: SexoEnum;
 
+  @ApiProperty()
   @Expose()
   @Column()
   birthday!: Date;
 
+  @ApiProperty()
   @Expose()
   @Column()
   age!: number;
 
+  @ApiProperty()
   @Expose()
   @Column()
   hobby!: string;
