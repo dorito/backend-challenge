@@ -39,11 +39,15 @@ export class LevelService {
     }
     const level = new Level();
     level.name = levelName;
-    return this.levelRepository.save(level);
+    return await this.levelRepository.save(level);
   }
 
   async removeLevel(id: number) {
-    const level: Level = await this.findById(id);
-    this.levelRepository.softDelete(level);
+    try {
+      const level: Level = await this.findById(id);
+      await this.levelRepository.softDelete(level);
+    } catch (e) {
+      throw e;
+    }
   }
 }

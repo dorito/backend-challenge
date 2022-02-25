@@ -74,6 +74,6 @@ export class LevelController {
     required: true,
   })
   async removeLevel(@Query('id', new FindLevelByIdDto()) id: any) {
-    this.levelService.removeLevel(id);
+    await this.levelService.removeLevel(id);
   }
 }
