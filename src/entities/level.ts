@@ -12,5 +12,5 @@ export class Level {
   @ApiProperty()
   @Expose()
   @Column()
-  level!: string;
+  name!: string;
 }

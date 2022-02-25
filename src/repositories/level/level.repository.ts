@@ -10,4 +10,10 @@ export class LevelRepository extends Repository<Level> {
   async findById(id: number): Promise<Level> {
     return this.findOne({ id });
   }
+
+  async findByName(name: string): Promise<Level> {
+    return this.findOne({
+      where: [{ name }],
+    });
+  }
 }

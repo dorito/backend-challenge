@@ -1,16 +1,24 @@
+import { CreateLevelDto } from '@/dtos/level/create-level.dto';
 import { FindLevelByIdDto } from '@/dtos/level/find-level-by-id.dto';
 import { Level } from '@/entities/level';
 import { LevelService } from '@/services/level/level.service';
 import {
+  Body,
   ClassSerializerInterceptor,
   Controller,
   Get,
   HttpException,
   HttpStatus,
+  Post,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiOkResponse, ApiQuery } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiQuery,
+} from '@nestjs/swagger';
 
 @Controller('level')
 export class LevelController {
@@ -44,5 +52,18 @@ export class LevelController {
       );
     }
     return level;
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Post()
+  @ApiCreatedResponse({
+    type: Level,
+    description: 'Return Level when created is successfuly done.',
+  })
+  @ApiBody({
+    type: CreateLevelDto,
+  })
+  async createNewLevel(@Body() createLevelDto: CreateLevelDto): Promise<Level> {
+    return this.levelService.createLevel(createLevelDto);
   }
 }
