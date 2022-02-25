@@ -1,14 +1,17 @@
 import { NumericParam } from '@/dtos/common/numeric-param';
+import { CreateDeveloperDto } from '@/dtos/developer/create-developer.dto';
+import { EditDeveloperDto } from '@/dtos/developer/edit-developer.dto';
 import { Developer } from '@/entities/developer';
 import { DeveloperService } from '@/services/developer/developer.service';
+import { LevelService } from '@/services/level/level.service';
 import {
   Body,
   ClassSerializerInterceptor,
   Controller,
   Delete,
   Get,
-  Patch,
   Post,
+  Put,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
@@ -18,11 +21,16 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 
+@ApiTags('Developer')
 @Controller('developer')
 export class DeveloperController {
-  constructor(private developerService: DeveloperService) {}
+  constructor(
+    private developerService: DeveloperService,
+    private levelService: LevelService,
+  ) {}
   @UseInterceptors(ClassSerializerInterceptor)
   @Get()
   @ApiOkResponse({
@@ -46,49 +54,50 @@ export class DeveloperController {
     return this.developerService.findById(id);
   }
 
-  /*
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
   @ApiCreatedResponse({
-    type: Level,
-    description: 'Return Level when created is successfuly done.',
+    type: Developer,
+    description: 'Return Developer when created is successfuly done.',
   })
   @ApiBody({
-    type: CreateLevelDto,
-    description: 'Name of new level',
+    type: CreateDeveloperDto,
+    description: 'New developer data',
   })
-  async createNewLevel(@Body() createLevelDto: CreateLevelDto): Promise<Level> {
-    return this.levelService.createLevel(createLevelDto);
+  async createNewDeveloper(
+    @Body() createDeveloperDto: CreateDeveloperDto,
+  ): Promise<Developer> {
+    await this.levelService.findById(createDeveloperDto.level);
+    return this.developerService.createDeveloper(createDeveloperDto);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Delete()
   @ApiNoContentResponse({
-    type: Level,
     description: 'No return when successful.',
   })
   @ApiQuery({
     name: 'id',
     type: Number,
-    description: 'Level Id',
+    description: 'Developer Id',
     required: true,
   })
-  async removeLevel(@Query('id', new FindLevelByIdDto()) id: any) {
-    await this.levelService.removeLevel(id);
+  async removeDeveloper(@Query('id', new NumericParam()) id: any) {
+    await this.developerService.removeDeveloper(id);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Patch()
+  @Put()
   @ApiOkResponse({
-    type: Level,
-    description: 'Return Level when successful.',
+    type: Developer,
+    description: 'Return Developer when successful.',
   })
   @ApiBody({
-    type: EditLevelDto,
-    description: 'Id of level to be edited and the new chosen name.',
+    type: EditDeveloperDto,
+    description: 'Data of developer to be edited.',
   })
-  async editLevel(@Body() editLevelDto: EditLevelDto) {
-    return await this.levelService.editLevel(editLevelDto);
+  async editLevel(@Body() editDeveloperDto: EditDeveloperDto) {
+    await this.levelService.findById(editDeveloperDto.level);
+    return await this.developerService.editDeveloper(editDeveloperDto);
   }
-  */
 }

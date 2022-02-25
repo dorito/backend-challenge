@@ -9,7 +9,7 @@ import {
   Controller,
   Delete,
   Get,
-  Patch,
+  Put,
   Post,
   Query,
   UseInterceptors,
@@ -20,8 +20,10 @@ import {
   ApiNoContentResponse,
   ApiOkResponse,
   ApiQuery,
+  ApiTags,
 } from '@nestjs/swagger';
 
+@ApiTags('Level')
 @Controller('level')
 export class LevelController {
   constructor(private levelService: LevelService) {}
@@ -80,7 +82,7 @@ export class LevelController {
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
-  @Patch()
+  @Put()
   @ApiOkResponse({
     type: Level,
     description: 'Return Level when successful.',

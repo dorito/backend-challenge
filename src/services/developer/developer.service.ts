@@ -1,11 +1,9 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Developer } from '@/entities/developer';
 import { DeveloperRepository } from '@/repositories/developer.repository';
+import { CreateLevelDto } from '@/dtos/level/create-level.dto';
+import { EditDeveloperDto } from '@/dtos/developer/edit-developer.dto';
 
 @Injectable()
 export class DeveloperService {
@@ -16,17 +14,6 @@ export class DeveloperService {
 
   private async _findByName(name: string): Promise<Developer> {
     return await this.developerRepository.findByName(name);
-  }
-
-  private async _abortIfAlreadyExists(levelName: string) {
-    const itExists = (await this.developerRepository.findByName(levelName))
-      ? true
-      : false;
-    if (itExists) {
-      throw new BadRequestException(
-        `Level with name=${levelName} already exists`,
-      );
-    }
   }
 
   async findAll(): Promise<Developer[]> {
@@ -41,18 +28,26 @@ export class DeveloperService {
     return developer;
   }
 
-  async createDeveloper(/*createDeveloperDto: CreateLevelDto*/): Promise<Developer> {
-    /*
-    const levelName: string = createDeveloperDto.name;
-    await this._abortIfAlreadyExists(levelName);
+  _populateFields(
+    dto: CreateLevelDto | EditDeveloperDto,
+    developer: Developer,
+  ): Developer {
+    Object.entries(dto).forEach(([key, value]) => {
+      developer[key] = value;
+    });
+    return developer;
+  }
+  async createDeveloper(
+    createDeveloperDto: CreateLevelDto,
+  ): Promise<Developer> {
     const developer = new Developer();
-    level.name = levelName;
-    return await this.levelRepository.save(level);
-    */
-    return new Developer();
+    Object.entries(createDeveloperDto).forEach(([key, value]) => {
+      developer[key] = value;
+    });
+    return await this.developerRepository.save(developer);
   }
 
-  async removeLevel(id: number): Promise<boolean> {
+  async removeDeveloper(id: number): Promise<boolean> {
     try {
       const developer: Developer = await this.findById(id);
       await this.developerRepository.softDelete(developer);
@@ -62,19 +57,14 @@ export class DeveloperService {
     }
   }
 
-  async editLevel(/*editDeveloperDto: EditDeveloperDto*/): Promise<Developer> {
-    /*
+  async editDeveloper(editDeveloperDto: EditDeveloperDto): Promise<Developer> {
     try {
-      const levelId: number = editDeveloperDto.id;
-      const levelNewName: string = editDeveloperDto.name;
-      const level = await this.findById(levelId);
-      await this._abortIfAlreadyExists(levelNewName);
-      level.name = levelNewName;
-      return await this.levelRepository.save(level);
+      const developerId: number = editDeveloperDto.id;
+      let developer = await this.findById(developerId);
+      developer = this._populateFields(editDeveloperDto, developer);
+      return await this.developerRepository.save(developer);
     } catch (e) {
       throw e;
     }
-    */
-    return new Developer();
   }
 }
