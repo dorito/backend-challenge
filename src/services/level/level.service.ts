@@ -13,4 +13,8 @@ export class LevelService {
   async findAll(): Promise<Level[]> {
     return this.levelRepository.findAll();
   }
+
+  async findById(id: number): Promise<Level> {
+    return this.levelRepository.findById(id);
+  }
 }
