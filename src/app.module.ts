@@ -16,6 +16,7 @@ import { DeveloperModule } from './modules/developer.module';
       database: process.env.DB_DATABASE,
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
       autoLoadEntities: true,
+      migrationsRun: true,
     }),
     LevelModule,
     DeveloperModule,

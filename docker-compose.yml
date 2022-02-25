@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+    postgres:
+      image: postgres:11.8
+      container_name: backend-pg
+      restart: unless-stopped
+      environment:
+        POSTGRES_DB: postgres
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+      volumes:
+        - /var/lib/postgresql/data
+      ports:
+        - 5432:5432
+      networks:
+        - default
+    prod:
+        container_name: backend-prod
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        environment:
+          SERVER_PORT: 3000
+          MODE: PROD
+          DB_HOST: postgres
+          DB_PORT: 5432
+          DB_USERNAME: postgres
+          DB_PASSWORD: postgres
+          DB_DATABASE: postgres
+          DB_SYNCHRONIZE: false
+        command: yarn run start:prod && yarn run typeorm:run
+        depends_on:
+          postgres:
+            condition: service_started
+        ports:
+            - 3000:3000
+        networks:
+            - default
+        volumes:
+            - .:/usr/src/app
+            - /usr/src/app/node_modules
+        restart: unless-stopped
+
+networks:
+    default:
