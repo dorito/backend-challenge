@@ -4,7 +4,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LevelModule } from '@/modules/level.module';
 import { DeveloperModule } from './modules/developer.module';
 
-console.log(__dirname + '/entities/*{.ts,.js}');
 @Module({
   imports: [
     ConfigModule.forRoot(),
