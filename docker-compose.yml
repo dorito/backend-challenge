@@ -21,7 +21,7 @@ services:
             context: .
             dockerfile: ./Dockerfile
         command: bash -c "
-            yarn run typeorm:run && yarn run start:prod
+            yarn run typeorm:run && yarn run start
           "
         depends_on:
           postgres:
