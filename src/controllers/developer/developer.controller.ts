@@ -92,7 +92,7 @@ export class DeveloperController {
     @Query('level', new NumericParam()) level: any,
     @Query('take', new NumericParam()) take?: any,
     @Query('skip', new NumericParam()) skip?: any,
-  ): Promise<PaginatedResult<Developer> | Developer> {
+  ): Promise<PaginatedResult<Developer>> {
     const developers = await this.developerService.findAll(
       take,
       skip,
@@ -148,7 +148,7 @@ export class DeveloperController {
     type: EditDeveloperDto,
     description: 'Data of developer to be edited.',
   })
-  async editLevel(@Body() editDeveloperDto: EditDeveloperDto) {
+  async editDeveloper(@Body() editDeveloperDto: EditDeveloperDto) {
     await this.levelService.findById(editDeveloperDto.level);
     return await this.developerService.editDeveloper(editDeveloperDto);
   }

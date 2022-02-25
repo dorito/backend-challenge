@@ -6,7 +6,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Developer } from '@/entities/developer';
 import { DeveloperRepository } from '@/repositories/developer.repository';
-import { CreateLevelDto } from '@/validators/level/create-level.dto';
 import { EditDeveloperDto } from '@/validators/developer/edit-developer.dto';
 import { PaginatedResult } from '@/validators/common/paginated-result';
 import { Like } from 'typeorm';

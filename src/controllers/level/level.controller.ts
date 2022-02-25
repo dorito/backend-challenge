@@ -114,20 +114,20 @@ export class LevelController {
     description: 'Level Id',
     required: true,
   })
-  async removeLevel(@Query('id', new NumericParam()) id: any) {
+  async removeLevel(@Query('id', new NumericParam()) levelId: any) {
     const developers = await this.developerService.findAll(
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      id,
+      undefined, //take
+      undefined, //skip
+      undefined, //id,
+      undefined, //name
+      levelId,
     );
     if (developers.count > 0) {
       throw new NotImplementedException(
         'Level cannot be removed because there are developers related to it',
       );
     }
-    await this.levelService.removeLevel(id);
+    await this.levelService.removeLevel(levelId);
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

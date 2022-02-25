@@ -4,6 +4,7 @@ import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DeveloperController } from './developer.controller';
 import { Developer, SexoEnum } from '@/entities/developer';
+import { Level } from '@/entities/level';
 import { EditDeveloperDto } from '@/validators/developer/edit-developer.dto';
 import { DeveloperService } from '@/services/developer/developer.service';
 
@@ -14,51 +15,89 @@ const manyLevels = [oneLevel, twoLevel, threeLevel];
 const oneDeveloper: Developer = {
   id: 1,
   level: oneLevel,
-  name: 'TestLevel 2',
+  name: 'TestDeveloper 1',
   birthday: new Date(2000, 1, 1),
   gender: SexoEnum.FEMININO,
-  age: 1,
+  age: 22,
   hobby: 'a',
 };
+const twoDeveloper: Developer = {
+  id: 2,
+  level: twoLevel,
+  name: 'TestDeveloper 2',
+  birthday: new Date(2000, 1, 1),
+  gender: SexoEnum.MASCULINO,
+  age: 22,
+  hobby: 'b',
+};
+const manyDevelopers = [oneDeveloper, twoDeveloper];
 
+const _getAge = (birthday: Date) => {
+  const today = new Date();
+  let birthdayDate = birthday;
+  if (typeof birthday == 'string') {
+    birthdayDate = new Date(birthday);
+  }
+  let age = today.getFullYear() - birthdayDate.getFullYear();
+  const m = today.getMonth() - birthdayDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthdayDate.getDate())) {
+    age--;
+  }
+  return age;
+};
 describe('DeveloperController', () => {
   let controller: DeveloperController;
-  const levelServiceMock = {
+  const developerServiceMock = {
     findById: jest.fn((id) => {
+      const developerObj = manyDevelopers.filter((obj) => obj.id == id);
+      if (developerObj[0]) {
+        return developerObj[0];
+      }
+      throw new NotFoundException();
+    }),
+    findAll: jest.fn((take, skip, id, name, level) => {
+      if (!id) {
+        return {
+          count: manyDevelopers.length,
+          data: manyDevelopers,
+        };
+      } else {
+        return {
+          count: 1,
+          data: [developerServiceMock.findById(id)],
+        };
+      }
+    }),
+    createDeveloper: jest.fn((createDeveloperDto: CreateDeveloperDto) => {
+      return Promise.resolve({
+        id: 4,
+        ...createDeveloperDto,
+        age: _getAge(createDeveloperDto.birthday),
+      });
+    }),
+    editDeveloper: jest.fn((editDeveloperDto: EditDeveloperDto) => {
+      developerServiceMock.findById(editDeveloperDto.id);
+      return Promise.resolve({
+        id: editDeveloperDto.id,
+        ...editDeveloperDto,
+        age: _getAge(editDeveloperDto.birthday),
+      });
+    }),
+  };
+
+  const levelServiceMock = {
+    findById: jest.fn((id: number) => {
       const levelObj = manyLevels.filter((obj) => obj.id == id);
       if (levelObj[0]) {
         return levelObj[0];
       }
       throw new NotFoundException();
     }),
-    findAll: jest.fn((take, skip, id) => {
-      if (!id) {
-        return manyLevels;
-      } else {
-        return levelServiceMock.findById(id);
-      }
-    }),
-    createLevel: jest.fn((createLevelDto: CreateLevelDto) => {
-      return Promise.resolve({ id: 4, name: createLevelDto.name });
-    }),
-    editLevel: jest.fn((editLevelDto: EditLevelDto) => {
-      levelServiceMock.findById(editLevelDto.id);
-      return Promise.resolve({ id: editLevelDto.id, name: editLevelDto.name });
-    }),
   };
-  const developerServiceMock = {
-    findAll: jest.fn(() =>
-      Promise.resolve({
-        count: 0,
-        data: [],
-      }),
-    ),
-  };
-
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        LevelController,
+        DeveloperController,
         {
           provide: LevelService,
           useValue: levelServiceMock,
@@ -70,48 +109,82 @@ describe('DeveloperController', () => {
       ],
     }).compile();
 
-    controller = module.get<LevelController>(LevelController);
+    controller = module.get<DeveloperController>(DeveloperController);
   });
 
   describe('findOneOrAll', () => {
-    it('should return all levels when no ?id', async () => {
-      const levels = await controller.findOneOrAll(undefined);
-      expect(levels).toEqual(manyLevels);
+    it('should return all developers when no query string', async () => {
+      const developers = await controller.findOneOrAll(
+        undefined, //id
+        undefined, //name
+        undefined, //level
+      );
+      expect({
+        count: manyDevelopers.length,
+        data: manyDevelopers,
+      }).toEqual(developers);
     });
 
-    it('should return specific level when id', async () => {
-      const knownId = oneLevel.id;
-      const level = await controller.findOneOrAll(knownId);
-      expect(level).toEqual(oneLevel);
+    it('should return specific developer when id', async () => {
+      const knownId = oneDeveloper.id;
+      const developer = await controller.findOneOrAll(
+        undefined, //take
+        undefined, //skip
+        knownId,
+        undefined, //name
+        undefined, //level
+      );
+      console.log(developer.data);
+      expect(developer.data[0].id).toEqual(knownId);
     });
 
-    it('should fail when id of non existent level', async () => {
+    it('should fail when id of non existent developer', async () => {
       expect(async () => {
-        await controller.findOneOrAll(999);
+        await controller.findOneOrAll(999, undefined, undefined);
       }).rejects.toThrow(NotFoundException);
     });
   });
 
-  describe('createNewLevel', () => {
-    it('should create new level when createLevelDto is setted', async () => {
-      const createLevelDto = { name: 'Test' };
-      const level = await controller.createNewLevel(createLevelDto);
-      expect(level.name).toEqual(createLevelDto.name);
+  describe('createNewDeveloper', () => {
+    it('should create new developer when createDeveloperDto is setted', async () => {
+      const createDeveloperDto = {
+        name: 'Test',
+        level: 1,
+        gender: SexoEnum.INTERSSEXO,
+        birthday: new Date(2000, 1, 1),
+        hobby: 'x',
+      };
+      const level = await controller.createNewDeveloper(createDeveloperDto);
+      expect(level.name).toEqual(createDeveloperDto.name);
     });
   });
 
-  describe('editLevel', () => {
-    it('should edit level with requested ID', async () => {
-      const editLevelDto = { id: 1, name: 'Test' };
-      const level = await controller.editLevel(editLevelDto);
-      expect(level.id).toEqual(editLevelDto.id);
-      expect(level.name).toEqual(editLevelDto.name);
+  describe('editDeveloper', () => {
+    it('should edit developer with requested ID', async () => {
+      const editDeveloperDto = {
+        id: 1,
+        name: 'Test',
+        level: 1,
+        gender: SexoEnum.FEMININO,
+        birthday: new Date(2000, 1, 1),
+        hobby: 'x',
+      };
+      const developer = await controller.editDeveloper(editDeveloperDto);
+      expect(developer.id).toEqual(developer.id);
+      expect(developer.name).toEqual(developer.name);
     });
 
-    it('should not edit level with non existent ID', async () => {
+    it('should not edit developer with non existent ID', async () => {
       expect(async () => {
-        const editLevelDto = { id: 999, name: 'Test' };
-        await controller.editLevel(editLevelDto);
+        const editDeveloperDto = {
+          id: 1000,
+          name: 'Test',
+          level: 1,
+          gender: SexoEnum.MASCULINO,
+          birthday: new Date(2000, 1, 1),
+          hobby: 'x',
+        };
+        await controller.editDeveloper(editDeveloperDto);
       }).rejects.toThrow(NotFoundException);
     });
   });
