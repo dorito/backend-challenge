@@ -17,8 +17,11 @@ import { DeveloperModule } from './modules/developer.module';
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
       autoLoadEntities: true,
       migrationsRun: true,
+      ssl: true,
       extra: {
-        ssl: true,
+        ssl: {
+          rejectUnauthorized: false,
+        },
       },
     }),
     LevelModule,
