@@ -1,5 +1,10 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { Expose } from 'class-transformer';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  DeleteDateColumn,
+} from 'typeorm';
+import { Exclude, Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
 @Entity({ name: 'level' })
@@ -13,4 +18,8 @@ export class Level {
   @Expose()
   @Column()
   name!: string;
+
+  @Exclude()
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }

@@ -4,8 +4,9 @@ import {
   Column,
   OneToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { Level } from './level';
 
 export enum SexoEnum {
@@ -48,4 +49,8 @@ export class Developer {
   @Expose()
   @Column()
   hobby!: string;
+
+  @Exclude()
+  @DeleteDateColumn()
+  deletedAt?: Date;
 }
