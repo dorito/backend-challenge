@@ -4,7 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LevelRepository } from '@/repositories/level/level.repository';
+import { LevelRepository } from '@/repositories/level.repository';
 import { Level } from '@/entities/level';
 import { CreateLevelDto } from '@/dtos/level/create-level.dto';
 import { EditLevelDto } from '@/dtos/level/edit-level-dto';
