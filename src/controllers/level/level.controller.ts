@@ -1,4 +1,5 @@
 import { CreateLevelDto } from '@/dtos/level/create-level.dto';
+import { EditLevelDto } from '@/dtos/level/edit-level-dto';
 import { FindLevelByIdDto } from '@/dtos/level/find-level-by-id.dto';
 import { Level } from '@/entities/level';
 import { LevelService } from '@/services/level/level.service';
@@ -8,6 +9,7 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Post,
   Query,
   UseInterceptors,
@@ -75,5 +77,19 @@ export class LevelController {
   })
   async removeLevel(@Query('id', new FindLevelByIdDto()) id: any) {
     await this.levelService.removeLevel(id);
+  }
+
+  @UseInterceptors(ClassSerializerInterceptor)
+  @Patch()
+  @ApiOkResponse({
+    type: Level,
+    description: 'Return Level when successful.',
+  })
+  @ApiBody({
+    type: EditLevelDto,
+    description: 'Id of level to be edited and the new chosen name.',
+  })
+  async editLevel(@Body() editLevelDto: EditLevelDto) {
+    return await this.levelService.editLevel(editLevelDto);
   }
 }

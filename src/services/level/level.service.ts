@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { LevelRepository } from '@/repositories/level/level.repository';
 import { Level } from '@/entities/level';
 import { CreateLevelDto } from '@/dtos/level/create-level.dto';
+import { EditLevelDto } from '@/dtos/level/edit-level-dto';
 
 @Injectable()
 export class LevelService {
@@ -14,6 +15,21 @@ export class LevelService {
     @InjectRepository(LevelRepository)
     private readonly levelRepository: LevelRepository,
   ) {}
+
+  private async _findByName(name: string): Promise<Level> {
+    return await this.levelRepository.findByName(name);
+  }
+
+  private async _abortIfAlreadyExists(levelName: string) {
+    const itExists = (await this.levelRepository.findByName(levelName))
+      ? true
+      : false;
+    if (itExists) {
+      throw new BadRequestException(
+        `Level with name=${levelName} already exists`,
+      );
+    }
+  }
 
   async findAll(): Promise<Level[]> {
     return this.levelRepository.findAll();
@@ -29,14 +45,7 @@ export class LevelService {
 
   async createLevel(createLevelDto: CreateLevelDto): Promise<Level> {
     const levelName: string = createLevelDto.name;
-    const existingLevel: Level = await this.levelRepository.findByName(
-      levelName,
-    );
-    if (existingLevel) {
-      throw new BadRequestException(
-        `Level with name=${levelName} already exists (id=${existingLevel.id})`,
-      );
-    }
+    await this._abortIfAlreadyExists(levelName);
     const level = new Level();
     level.name = levelName;
     return await this.levelRepository.save(level);
@@ -46,6 +55,19 @@ export class LevelService {
     try {
       const level: Level = await this.findById(id);
       await this.levelRepository.softDelete(level);
+    } catch (e) {
+      throw e;
+    }
+  }
+
+  async editLevel(editLevelDto: EditLevelDto): Promise<Level> {
+    try {
+      const levelId: number = editLevelDto.id;
+      const levelNewName: string = editLevelDto.name;
+      const level = await this.findById(levelId);
+      await this._abortIfAlreadyExists(levelNewName);
+      level.name = levelNewName;
+      return await this.levelRepository.save(level);
     } catch (e) {
       throw e;
     }
