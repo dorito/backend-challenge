@@ -153,8 +153,8 @@ describe('DeveloperController', () => {
         birthday: new Date(2000, 1, 1),
         hobby: 'x',
       };
-      const level = await controller.createNewDeveloper(createDeveloperDto);
-      expect(level.name).toEqual(createDeveloperDto.name);
+      const developer = await controller.createNewDeveloper(createDeveloperDto);
+      expect(developer.name).toEqual(createDeveloperDto.name);
     });
   });
 
