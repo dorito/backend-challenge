@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LevelModule } from './modules/level/level.module';
+import { LevelModule } from '@/modules/level.module';
 
 console.log(__dirname + '/entities/*{.ts,.js}');
 @Module({
