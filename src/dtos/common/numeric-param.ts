@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, PipeTransform } from '@nestjs/common';
 
 @Injectable()
-export class FindLevelByIdDto implements PipeTransform<string, number> {
+export class NumericParam implements PipeTransform<string, number> {
   transform(value: string): number {
     if (typeof value === 'undefined') {
       return undefined;

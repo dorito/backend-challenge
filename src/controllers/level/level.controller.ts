@@ -1,6 +1,6 @@
 import { CreateLevelDto } from '@/dtos/level/create-level.dto';
 import { EditLevelDto } from '@/dtos/level/edit-level-dto';
-import { FindLevelByIdDto } from '@/dtos/level/find-level-by-id.dto';
+import { NumericParam } from '@/dtos/common/numeric-param';
 import { Level } from '@/entities/level';
 import { LevelService } from '@/services/level/level.service';
 import {
@@ -41,7 +41,7 @@ export class LevelController {
     required: false,
   })
   async findOneOrAll(
-    @Query('id', new FindLevelByIdDto()) id: any,
+    @Query('id', new NumericParam()) id: any,
   ): Promise<Level[] | Level> {
     if (!id) {
       return this.levelService.findAll();
@@ -75,7 +75,7 @@ export class LevelController {
     description: 'Level Id',
     required: true,
   })
-  async removeLevel(@Query('id', new FindLevelByIdDto()) id: any) {
+  async removeLevel(@Query('id', new NumericParam()) id: any) {
     await this.levelService.removeLevel(id);
   }
 
