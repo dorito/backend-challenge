@@ -1,7 +1,9 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { LevelModule } from './modules/level/level.module';
 
+console.log(__dirname + '/entities/*{.ts,.js}');
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -12,9 +14,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DATABASE,
-      entities: [__dirname + '/entities/{.ts,.js}'],
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
+      autoLoadEntities: true,
     }),
+    LevelModule,
   ],
   controllers: [],
   providers: [],
