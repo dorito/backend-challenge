@@ -2,7 +2,14 @@ import { ConnectionOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
 dotenv.config({ path: __dirname + './../.env' });
 
-const isDevMode = process.env.MODE == 'DEV' ? true : false;
+const isDevMode = process.env.NODE_ENV === 'production' ? false : true;
+const extraSsl = isDevMode
+  ? {}
+  : {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    };
 const config: ConnectionOptions = {
   type: 'postgres',
   host: process.env.DB_HOST,
@@ -12,11 +19,7 @@ const config: ConnectionOptions = {
   database: process.env.DB_DATABASE,
   entities: [__dirname + '/../entities/*{.ts,.js}'],
   ssl: !isDevMode,
-  extra: {
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  },
+  extra: extraSsl,
 
   synchronize: false,
 

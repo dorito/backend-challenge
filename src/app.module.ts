@@ -4,7 +4,14 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { LevelModule } from '@/modules/level.module';
 import { DeveloperModule } from './modules/developer.module';
 
-const isDevMode = process.env.MODE == 'DEV' ? true : false;
+const isDevMode = process.env.NODE_ENV === 'production' ? false : true;
+const extraSsl = isDevMode
+  ? {}
+  : {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    };
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -19,11 +26,7 @@ const isDevMode = process.env.MODE == 'DEV' ? true : false;
       autoLoadEntities: true,
       migrationsRun: true,
       ssl: !isDevMode,
-      extra: {
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      },
+      extra: extraSsl,
     }),
     LevelModule,
     DeveloperModule,

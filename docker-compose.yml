@@ -15,19 +15,19 @@ services:
         - ${DB_PORT}:5432
       networks:
         - default
-    prod:
-        container_name: backend-prod
+    server:
+        container_name: backend-server
         build:
             context: .
             dockerfile: ./Dockerfile
-        command: bash -c "
-            yarn run typeorm:run && yarn run start
-          "
+        command: bash -c "yarn run typeorm:run && yarn run start:dev"
         depends_on:
           postgres:
             condition: service_started
         ports:
-            - ${SERVER_PORT}:3000
+            - ${PORT}:3000
+        environment:
+            MODE: DEV
         networks:
             - default
         volumes:
