@@ -2,7 +2,7 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  OneToOne,
+  ManyToOne,
   JoinColumn,
   DeleteDateColumn,
 } from 'typeorm';
@@ -26,7 +26,7 @@ export class Developer {
   @ApiProperty()
   @Expose()
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  @OneToOne((type) => Level)
+  @ManyToOne((type) => Level)
   @JoinColumn({ name: 'developerLevel' })
   level: Level;
 

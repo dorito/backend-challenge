@@ -7,6 +7,7 @@ import {
   IsPositive,
   IsInt,
   IsDateString,
+  IsISO8601,
 } from 'class-validator';
 import { SexoEnum } from '@/entities/developer';
 
@@ -29,16 +30,10 @@ export class CreateDeveloperDto {
   })
   gender: SexoEnum;
 
-  @IsDateString()
+  @IsISO8601()
   @IsNotEmpty()
   @ApiProperty()
   birthday: Date;
-
-  @IsNumber()
-  @IsPositive()
-  @IsNotEmpty()
-  @ApiProperty()
-  age: number;
 
   @IsString()
   @IsNotEmpty()

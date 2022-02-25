@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Developer } from '@/entities/developer';
 import { DeveloperRepository } from '@/repositories/developer.repository';
@@ -6,6 +10,7 @@ import { CreateLevelDto } from '@/validators/level/create-level.dto';
 import { EditDeveloperDto } from '@/validators/developer/edit-developer.dto';
 import { PaginatedResult } from '@/validators/common/paginated-result';
 import { Like } from 'typeorm';
+import { CreateDeveloperDto } from '@/validators/developer/create-developer.dto';
 
 @Injectable()
 export class DeveloperService {
@@ -61,23 +66,47 @@ export class DeveloperService {
     return developer;
   }
 
+  _getAge(birthday: Date) {
+    const today = new Date();
+    let birthdayDate = birthday;
+    if (typeof birthday == 'string') {
+      birthdayDate = new Date(birthday);
+    }
+    let age = today.getFullYear() - birthdayDate.getFullYear();
+    const m = today.getMonth() - birthdayDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthdayDate.getDate())) {
+      age--;
+    }
+    return age;
+  }
+
   _populateFields(
-    dto: CreateLevelDto | EditDeveloperDto,
+    dto: CreateDeveloperDto | EditDeveloperDto,
     developer: Developer,
   ): Developer {
     Object.entries(dto).forEach(([key, value]) => {
       developer[key] = value;
     });
+    const age = this._getAge(dto.birthday);
+    if (age <= 0) {
+      throw new BadRequestException('Invalid birthday');
+    }
+    developer.age = age;
     return developer;
   }
+
   async createDeveloper(
-    createDeveloperDto: CreateLevelDto,
+    createDeveloperDto: CreateDeveloperDto,
   ): Promise<Developer> {
-    const developer = new Developer();
-    Object.entries(createDeveloperDto).forEach(([key, value]) => {
-      developer[key] = value;
-    });
-    return await this.developerRepository.save(developer);
+    try {
+      const developer = this._populateFields(
+        createDeveloperDto,
+        new Developer(),
+      );
+      return await this.developerRepository.save(developer);
+    } catch (e) {
+      throw e;
+    }
   }
 
   async removeDeveloper(id: number): Promise<boolean> {
