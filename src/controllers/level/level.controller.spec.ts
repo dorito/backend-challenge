@@ -1,5 +1,5 @@
 import { CreateLevelDto } from '@/dtos/level/create-level.dto';
-import { LevelService } from '@/services/level';
+import { LevelService } from '@/services/level/level.service';
 import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LevelController } from './level.controller';
