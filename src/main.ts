@@ -5,6 +5,7 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors({ origin: '*' }); // quick fix for heroku client, shouldn't be really used in real cases
 
   const config = new DocumentBuilder()
     .setTitle('backend-challenge')
