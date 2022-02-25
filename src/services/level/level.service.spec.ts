@@ -1,6 +1,6 @@
 import { CreateLevelDto } from '@/dtos/level/create-level.dto';
 import { Level } from '@/entities/level';
-import { LevelRepository } from '@/repositories/level/level.repository';
+import { LevelRepository } from '@/repositories/level.repository';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { plainToClass } from 'class-transformer';
