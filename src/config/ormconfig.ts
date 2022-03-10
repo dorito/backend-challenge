@@ -1,7 +1,9 @@
 import { ConnectionOptions } from 'typeorm';
 import * as dotenv from 'dotenv';
+import * as PostgressConnectionStringParser from "pg-connection-string";
 dotenv.config({ path: __dirname + './../.env' });
 
+let dbConfig;
 const isDevMode = process.env.NODE_ENV === 'production' ? false : true;
 const extraSsl = isDevMode
   ? {}
@@ -10,13 +12,26 @@ const extraSsl = isDevMode
         rejectUnauthorized: false,
       },
     };
+const dbUrl = process.env.DATABASE_URL;
+if(dbUrl){
+  dbConfig = PostgressConnectionStringParser.parse(dbUrl);
+}
+else{
+  dbConfig = {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE
+  }
+}
 const config: ConnectionOptions = {
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
+  host: dbConfig.host,
+  port: parseInt(dbConfig.port),
+  username: dbConfig.user,
+  password: dbConfig.password,
+  database: dbConfig.database,
   entities: [__dirname + '/../entities/*{.ts,.js}'],
   ssl: !isDevMode,
   extra: extraSsl,
