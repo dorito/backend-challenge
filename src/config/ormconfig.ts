@@ -3,7 +3,6 @@ import * as dotenv from 'dotenv';
 import * as PostgressConnectionStringParser from "pg-connection-string";
 dotenv.config({ path: __dirname + './../.env' });
 
-let dbConfig;
 const isDevMode = process.env.NODE_ENV === 'production' ? false : true;
 const extraSsl = isDevMode
   ? {}
@@ -13,18 +12,15 @@ const extraSsl = isDevMode
       },
     };
 const dbUrl = process.env.DATABASE_URL;
-if(dbUrl){
-  dbConfig = PostgressConnectionStringParser.parse(dbUrl);
-}
-else{
-  dbConfig = {
+const dbConfig = dbUrl 
+  ? PostgressConnectionStringParser.parse(dbUrl)
+  : {
     host: process.env.DB_HOST,
     port: process.env.DB_PORT,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     database: process.env.DB_DATABASE
-  }
-}
+  };
 const config: ConnectionOptions = {
   type: 'postgres',
   host: dbConfig.host,
