@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { LevelModule } from '@/modules/level.module';
 import { DeveloperModule } from './modules/developer.module';
+import { dbConfig } from '@/config/dbconfig'
 
 const isDevMode = process.env.NODE_ENV === 'production' ? false : true;
 const extraSsl = isDevMode
@@ -17,11 +18,11 @@ const extraSsl = isDevMode
     ConfigModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
+      host: dbConfig.host,
+      port: parseInt(dbConfig.port),
+      username: dbConfig.user,
+      password: dbConfig.password,
+      database: dbConfig.database,
       synchronize: process.env.DB_SYNCHRONIZE === 'true',
       autoLoadEntities: true,
       migrationsRun: true,
